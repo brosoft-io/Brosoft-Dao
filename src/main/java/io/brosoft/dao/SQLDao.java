@@ -60,12 +60,10 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 		List<KeyPair> pairs = BeanProcessor.SqlobjectToPairs(t);
 		templateStatement = String.format(templateStatement, table, BeanProcessor.getKeysAsString(pairs),
 				BeanProcessor.getQmarksAsString(pairs.size()));
-		System.out.println(templateStatement);
 		try (PreparedStatement statement = connection.prepareStatement(templateStatement)) {
 			for (int i = 0; i < pairs.size(); i++) {
 				statement.setObject(i + 1, pairs.get(i).value);
 			}
-			System.out.println(statement.toString());
 			sucess = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			throw new ExecutionException(e);
@@ -79,12 +77,10 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 		List<T> list = new ArrayList<T>();
 		String templateStatement = String.format("SELECT * FROM %s WHERE %s", 
 				table, BeanProcessor.getWhereAndArgsAsString(keyPairs));
-		System.out.println(templateStatement);
 		try (PreparedStatement statement = connection.prepareStatement(templateStatement)){
 			for (int i = 0; i < keyPairs.size(); i++) {
 				statement.setObject(i + 1, keyPairs.get(i).value);
 			}
-			System.out.println(statement.toString());
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				T t = BeanProcessor.instantiate(clazz);
@@ -110,7 +106,6 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 	public List<T> readAll() throws ExecutionException {
 		String templateStatement = String.format("SELECT * FROM %s", table);
 		List<T> list = new ArrayList<T>();
-		System.out.println(templateStatement);
 		try (PreparedStatement statement = connection.prepareStatement(templateStatement);
 				ResultSet resultSet = statement.executeQuery()) {
 			while (resultSet.next()) {
@@ -139,7 +134,6 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 		String templateStatement = String.format("UPDATE %s SET %s WHERE %s", table, 
 				BeanProcessor.getSetArgsAsString(tPairs), BeanProcessor.getWhereAndArgsAsString(keyPairs));
 		boolean sucess = false;
-		System.out.println(templateStatement);
 		try (PreparedStatement statement = connection.prepareStatement(templateStatement)) {
 			int i = 0;
 			for (; i < tPairs.size(); i++) {
@@ -148,7 +142,6 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 			for (; i < tPairs.size() + keyPairs.size(); i++) {
 				statement.setObject(i + 1, keyPairs.get(i - tPairs.size()).value);
 			}
-			System.out.println();
 			sucess = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			throw new ExecutionException(e);
@@ -162,7 +155,6 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 		String templateStatement = String.format("DELETE FROM %s WHERE %s", 
 				table, BeanProcessor.getWhereAndArgsAsString(keyPairs));
 		boolean sucess = false;
-		System.out.println(templateStatement);
 		try (PreparedStatement statement = connection.prepareStatement(templateStatement)) {
 			for (int i = 0; i < keyPairs.size(); i++) {
 				statement.setObject(i + 1, keyPairs.get(i).value);

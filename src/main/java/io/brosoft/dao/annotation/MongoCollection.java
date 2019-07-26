@@ -6,16 +6,15 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import io.brosoft.dao.MongoDbInit;
+import io.brosoft.dao.MongoInit;
 
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface MongoDbCollection {
+public @interface MongoCollection {
 
 	String collection();
 	
-	String database();
+	Class<?> bean();
 	
-	Class<? extends MongoDbInit> clientInitializer();
-	
+	Class<? extends MongoInit> mongoInitializer();
 }

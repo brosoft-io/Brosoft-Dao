@@ -24,7 +24,7 @@ public abstract class BeanProcessor {
 					name = field.getName();
 				}
 				try {
-					pairs.add(new KeyPair(name, field.get(t), sqliteField.type()));
+					pairs.add(new KeyPair(name, field.get(t)));
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					throw new BeanAccessException(e);
 				}

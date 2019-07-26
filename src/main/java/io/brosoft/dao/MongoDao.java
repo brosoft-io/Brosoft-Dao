@@ -17,20 +17,20 @@ import io.brosoft.dao.util.BeanProcessor;
 import io.brosoft.dao.util.KeyPair;
 import org.bson.Document;
 
-public abstract class CollectionDao<T> extends AbstractDao<T> {
+public abstract class MongoDao<T> extends AbstractDao<T> {
 
 	protected static MongoDatabase db = null;
 	protected String collection;
 	protected List<String> keyList;
 	
 	@SuppressWarnings("unchecked")
-	public CollectionDao() throws MissingDefaultConstructorException {
-		DocumentCollection documentCollection = this.getClass().getAnnotation(DocumentCollection.class);
+	public MongoDao() throws MissingDefaultConstructorException {
+		MongoCollection documentCollection = this.getClass().getAnnotation(MongoCollection.class);
 		this.collection = documentCollection.collection();
 		this.clazz = (Class<T>) documentCollection.bean();
 		if (db == null) {
 			try {
-				db = documentCollection.collectionInitializer().getDeclaredConstructor().newInstance().initDatabase();
+				db = documentCollection.mongoInitializer().getDeclaredConstructor().newInstance().initDatabase();
 			} catch (IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
 				throw new MissingDefaultConstructorException(e);
@@ -38,7 +38,7 @@ public abstract class CollectionDao<T> extends AbstractDao<T> {
 		}
 		keyList = new ArrayList<String>();
 		for (Field field : documentCollection.bean().getDeclaredFields()) {
-			DocumentField documentField = field.getAnnotation(DocumentField.class);
+			MongoField documentField = field.getAnnotation(MongoField.class);
 			if (documentField != null) {
 				String name = documentField.key();
 				if (name.equals("")) {
@@ -54,7 +54,7 @@ public abstract class CollectionDao<T> extends AbstractDao<T> {
 		Document document = new Document();
 		try {
 			for (Field field : clazz.getDeclaredFields()) {
-				DocumentField documentField = field.getAnnotation(DocumentField.class);
+				MongoField documentField = field.getAnnotation(MongoField.class);
 				if (documentField != null) {
 					String key = documentField.key();
 					if (key.equals("")) {
@@ -82,7 +82,7 @@ public abstract class CollectionDao<T> extends AbstractDao<T> {
 				Document document = cursor.next();
 				T t = BeanProcessor.instantiate(clazz);
 				for (Field field : clazz.getDeclaredFields()) {
-					DocumentField documentField = field.getAnnotation(DocumentField.class);
+					MongoField documentField = field.getAnnotation(MongoField.class);
 					if (documentField != null) {
 						String key = documentField.key();
 						if (key.equals("")) {
@@ -110,7 +110,7 @@ public abstract class CollectionDao<T> extends AbstractDao<T> {
 				Document document = cursor.next();
 				T t = BeanProcessor.instantiate(clazz);
 				for (Field field : clazz.getDeclaredFields()) {
-					DocumentField documentField = field.getAnnotation(DocumentField.class);
+					MongoField documentField = field.getAnnotation(MongoField.class);
 					if (documentField != null) {
 						String key = documentField.key();
 						if (key.equals("")) {
@@ -135,7 +135,7 @@ public abstract class CollectionDao<T> extends AbstractDao<T> {
 		Document filter = BeanProcessor.keyPairsToDocument(Arrays.asList(pairs));
 		try {
 			for (Field field : clazz.getDeclaredFields()) {
-				DocumentField documentField = field.getAnnotation(DocumentField.class);
+				MongoField documentField = field.getAnnotation(MongoField.class);
 				if (documentField != null) {
 					String key = documentField.key();
 					if (key.equals("")) {

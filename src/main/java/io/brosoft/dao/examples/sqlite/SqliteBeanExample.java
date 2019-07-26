@@ -1,16 +1,14 @@
 package io.brosoft.dao.examples.sqlite;
 
-import java.sql.JDBCType;
-
 import io.brosoft.dao.annotation.SQLField;
 
 public class SqliteBeanExample {
 
-	@SQLField(name = "first", type = JDBCType.VARCHAR)
+	@SQLField(name = "first")
 	private String firstName;
-	@SQLField(name = "last", type = JDBCType.VARCHAR)
+	@SQLField(name = "last")
 	private String lastName;
-	@SQLField(type = JDBCType.INTEGER)
+	@SQLField
 	private int age;
 	
 	public String getFirstName() {

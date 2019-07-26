@@ -1,0 +1,17 @@
+# Brosoft-Dao CI script
+image: maven
+
+variables:
+  BROSOFT_DAO_ENV: gitlab
+  POSTGRES_DB: test
+  POSTGRES_USER: gitlab
+  POSTGRES_PASSWORD: gitlab
+
+cucumber:
+  services:
+    - mongo:latest
+    - postgres:latest
+  script:
+    - mvn -q install
+    - mvn test
+

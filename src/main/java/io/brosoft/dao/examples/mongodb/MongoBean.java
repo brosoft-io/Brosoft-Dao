@@ -1,14 +1,14 @@
 package io.brosoft.dao.examples.mongodb;
 
-import io.brosoft.dao.annotation.DocumentField;
+import io.brosoft.dao.annotation.MongoField;
 
 public class MongoBean {
 
-    @DocumentField(key = "name")
+    @MongoField(key = "name")
     private String title;
-    @DocumentField
+    @MongoField
     private String genre;
-    @DocumentField(key = "release-year")
+    @MongoField(key = "release-year")
     private int year;
 
     public String getTitle() {
