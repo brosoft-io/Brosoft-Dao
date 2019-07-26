@@ -1,6 +1,5 @@
 # Brosoft-Dao CI script
-image:
-  name: ascdc/jdk8
+image: maven
 
 variables:
   BROSOFT_DAO_ENV: gitlab
@@ -8,15 +7,10 @@ variables:
   POSTGRES_USER: gitlab
   POSTGRES_PASSWORD: gitlab
 
-before_script:
-  - apt-get update
-  - apt-get install -y maven
-  - mvn install
-
 cucumber:
   services:
     - mongo:latest
     - postgres:latest
   script:
-    - mvn test
+    - mvn clean install test
 
