@@ -8,12 +8,12 @@ import java.util.List;
 public class MongoExample {
 
     public static void main(String[] args) throws ExecutionException {
-        MongoDao dao = new MongoDao();
+        MongoDaoExample dao = new MongoDaoExample();
 
         MongoBean bean1 = new MongoBean();
         bean1.setTitle("akira");
-        bean1.setGenre("sci-fi");
-        bean1.setYear(1995);
+        bean1.setGenre("drama/thriller");
+        bean1.setYear(1988);
 
         MongoBean bean2 = new MongoBean();
         bean2.setTitle("serial experiments lain");
