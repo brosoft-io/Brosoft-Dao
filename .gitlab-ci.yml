@@ -6,7 +6,7 @@ variables:
   POSTGRES_USER: gitlab
   POSTGRES_PASSWORD: gitlab
 
-install-java:
+before_script:
   - apt-get -qq update
   - apt-get -qq install -y openjdk-8-jdk-headless
   - apt-get -qq install -y maven
