@@ -12,5 +12,6 @@ cucumber:
     - mongo:latest
     - postgres:latest
   script:
-    - mvn clean install test
+    - mvn -q install
+    - mvn test
 
