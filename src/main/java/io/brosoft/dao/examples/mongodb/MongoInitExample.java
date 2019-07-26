@@ -2,9 +2,10 @@ package io.brosoft.dao.examples.mongodb;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import io.brosoft.dao.MongoDbInit;
 
-public class MongoInit implements MongoDbInit {
+import io.brosoft.dao.MongoInit;
+
+public class MongoInitExample implements MongoInit {
 
     @Override
     public MongoDatabase initDatabase() {
