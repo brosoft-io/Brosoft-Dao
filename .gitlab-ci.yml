@@ -7,10 +7,10 @@ variables:
   POSTGRES_PASSWORD: gitlab
 
 before_script:
-  - apt-get -qq update
-  - apt-get -qq install -y openjdk-8-jdk-headless
-  - apt-get -qq install -y maven
-  - mvn -q install
+  - apt update
+  - apt install -y openjdk-8-jdk
+  - apt install -y maven
+  - mvn install
 
 cucumber:
   services:
