@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # SQLite Integration
 
 ## SQL Connection Init Implementation
@@ -94,6 +93,3 @@ public class SqliteExample {
 
 }
 ```
-=======
-# SQLite Integration
->>>>>>> 7d3dcf7cc11ab570732c1469622f221c2cb3eaf0

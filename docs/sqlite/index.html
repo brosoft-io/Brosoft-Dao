@@ -37,9 +37,9 @@
       <nav class="nav">
         <ul class="root">
           <li class="toctree-l1"><a class="nav-item" href="..">Welcome to Brosoft DAO</a></li>
-          <li class="toctree-l1"><a class="nav-item" href="../mongo/">MongoDB Integration</a><a class="nav-item" href="../mongo/">MongoDB Integration</a></li>
-          <li class="toctree-l1"><a class="nav-item" href="../postgres/">PostgreSQL Integration</a><a class="nav-item" href="../postgres/">PostgreSQL Integration</a></li>
-          <li class="toctree-l1 current"><a class="nav-item current" href="./">SQLite Integration</a><a class="nav-item current" href="./">SQLite Integration</a>
+          <li class="toctree-l1"><a class="nav-item" href="../mongo/">MongoDB Integration</a></li>
+          <li class="toctree-l1"><a class="nav-item" href="../postgres/">PostgreSQL Integration</a></li>
+          <li class="toctree-l1 current"><a class="nav-item current" href="./">SQLite Integration</a>
   <ul class="subnav">
       <li class="toctree-l2"><a class="nav-item toc" href="#sql-connection-init-implementation">SQL Connection Init Implementation</a></li>
       <li class="toctree-l2"><a class="nav-item toc" href="#marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</a></li>
@@ -64,8 +64,7 @@
   
   </ul>
 </nav>
-        <div id="content"><p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<h1 id="sqlite-integration">SQLite Integration</h1>
+        <div id="content"><h1 id="sqlite-integration">SQLite Integration</h1>
 <h2 id="sql-connection-init-implementation">SQL Connection Init Implementation</h2>
 <p>The first thing that is needed is to setup the connection to your <a href="https://sqlite.org/index.html">Sqlite</a> database and your application. What you need to do is make a Java class that implements <code>io.brosoft.dao.SqlDbInit</code></p>
 <pre><code class="java">public class SqliteInitExmple implements SqlDbInit {
@@ -146,25 +145,7 @@ public class SqliteDaoExample extends SQLDao&lt;SqliteBeanExample&gt; {
     }
 
 }
-</code></pre>
-
-<p>=======</p>
-<h1 id="sqlite-integration_1">SQLite Integration</h1>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>7d3dcf7cc11ab570732c1469622f221c2cb3eaf0</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote></div>
+</code></pre></div>
         <footer>
     <div class="footer-buttons">
         <div class="previous"><a href="../postgres/" title="Postgres"><span>Previous</span></a></div>
