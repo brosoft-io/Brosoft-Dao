@@ -8,7 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.brosoft.dao.annotation.SQLField;
 import io.brosoft.dao.annotation.SQLTable;
@@ -20,7 +22,8 @@ import io.brosoft.dao.util.KeyPair;
 
 public abstract class SQLDao<T> extends AbstractDao<T> {
 	
-	protected static Connection connection;
+	protected static Map<String, Connection> connectionMap = new HashMap<String, Connection>();
+	protected Connection connection;
 	protected String table;
 	protected List<String> columnList;
 	
@@ -32,9 +35,11 @@ public abstract class SQLDao<T> extends AbstractDao<T> {
 		SQLTable sqlTable = this.getClass().getAnnotation(SQLTable.class);
 		this.table = sqlTable.table();
 		this.clazz = (Class<T>) sqlTable.bean();
+		this.connection = connectionMap.get(sqlTable.dbInitializer().getCanonicalName());
 		if (connection == null) {
 			try {
 				connection = sqlTable.dbInitializer().getDeclaredConstructor().newInstance().initDatabase();
+				connectionMap.put(sqlTable.dbInitializer().getCanonicalName(), connection);
 			} catch (IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
 				throw new MissingDefaultConstructorException(e);
