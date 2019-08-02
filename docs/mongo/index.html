@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Mongo &mdash; Brosoft DAO</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/tonsky/FiraCode@1.206/distr/fira_code.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body ontouchstart="">
+  <div id="container">
+    <aside>
+      <div class="home">
+        <div class="title">
+          <button class="hamburger"></button>
+          <a href=".." class="site-name"> Brosoft DAO</a>
+        </div>
+        <div class="search">
+          <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <ul class="root">
+          <li class="toctree-l1"><a class="nav-item" href="..">Welcome to Brosoft DAO</a></li>
+          <li class="toctree-l1 current"><a class="nav-item current" href="./">MongoDB Integration</a><a class="nav-item current" href="./">MongoDB Integration</a>
+  <ul class="subnav">
+      <li class="toctree-l2"><a class="nav-item toc" href="#mongodatabase-init-implementation">MongoDatabase Init Implementation</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#making-a-dao-class">Making a DAO Class</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#using-the-dao">Using the DAO</a></li>
+  </ul></li>
+          <li class="toctree-l1"><a class="nav-item" href="../postgres/">PostgreSQL Integration</a><a class="nav-item" href="../postgres/">PostgreSQL Integration</a></li>
+          <li class="toctree-l1"><a class="nav-item" href="../sqlite/">SQLite Integration</a><a class="nav-item" href="../sqlite/">SQLite Integration</a></li>
+        </ul>
+      </nav>
+      <div class="repo">
+    <div class="previous"><a href="..">&laquo; Previous</a></div>
+    <div class="next"><a href="../postgres/">Next &raquo;</a></div>
+</div>
+    </aside>
+    <div id="spacer"><button class="arrow"></button></div>
+    <main>
+      <div class="home-top">
+        <button class="hamburger"></button>
+        <a href=".." class="site-name"> Brosoft DAO</a>
+      </div>
+      <div id="main">
+        <nav class="breadcrumbs">
+  <ul>
+  
+  </ul>
+</nav>
+        <div id="content"><p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<h1 id="mongodb-integration">MongoDB Integration</h1>
+<h2 id="mongodatabase-init-implementation">MongoDatabase Init Implementation</h2>
+<p>The first thing that is needed is to setup the connection to your <a href="https://www.mongodb.com/what-is-mongodb">MongoDB</a> server and your application. What you need to do is make a Java class that implements <code>io.brosoft.dao.MongoInit</code></p>
+<pre><code class="java">public class MongoInitExample implements MongoInit {
+
+    @Override
+    public MongoDatabase initDatabase() {
+        MongoClient client = new MongoClient(&quot;localhost&quot;, 27017);
+        return client.getDatabase(&quot;testDB&quot;);
+    }
+}
+</code></pre>
+
+<h2 id="marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</h2>
+<p>Next you should annotate your Java beans to be used by the DAO. If you do not supply a key for the field it will default to the Java field name.</p>
+<pre><code class="java">public class MongoBean {
+
+    @MongoField(key = &quot;name&quot;)
+    private String title;
+    @MongoField
+    private String genre;
+    @MongoField(key = &quot;release-year&quot;)
+    private int year;
+}
+</code></pre>
+
+<h2 id="making-a-dao-class">Making a DAO Class</h2>
+<p>This is extremely simple as all you need to do is simply annoatate both the MongoInit implementation, as well as the Java Bean that it is using. The DAO's param type will be the Type of the Java Bean</p>
+<pre><code class="java">@MongoCollection(bean = MongoBean.class, collection = &quot;testCollection&quot;, mongoInitializer = MongoInitExample.class)
+public class MongoDaoExample extends MongoDao&lt;MongoBean&gt; {
+}
+</code></pre>
+
+<h2 id="using-the-dao">Using the DAO</h2>
+<p>Usage of the DAO is straight forward and simple. Instantiate using the deafult constructor and perform CRUD operations.</p>
+<pre><code class="java">public class MongoExample {
+
+    public static void main(String[] args) throws ExecutionException {
+        MongoDaoExample dao = new MongoDaoExample();
+
+        MongoBean bean1 = new MongoBean();
+        bean1.setTitle(&quot;akira&quot;);
+        bean1.setGenre(&quot;drama/thriller&quot;);
+        bean1.setYear(1988);
+
+        MongoBean bean2 = new MongoBean();
+        bean2.setTitle(&quot;serial experiments lain&quot;);
+        bean2.setGenre(&quot;sci-fi&quot;);
+        bean2.setYear(1995);
+
+        System.out.println(&quot;create &quot; + dao.create(bean1));
+        System.out.println(&quot;delete &quot; + dao.delete(new KeyPair(&quot;name&quot;, bean1.getTitle())));
+
+        System.out.println(&quot;create &quot; + dao.create(bean1));
+        System.out.println(&quot;update &quot; + dao.update(bean2, new KeyPair(&quot;name&quot;, bean1.getTitle())));
+
+        List&lt;MongoBean&gt; beans = dao.readAll();
+        for (MongoBean bean : beans) {
+            System.out.println(String.format(&quot;name: %s, genre: %s, date: %s&quot;, bean.getTitle(), bean.getGenre(), bean.getYear()));
+        }
+
+        System.out.println(&quot;delete &quot; + dao.delete(new KeyPair(&quot;name&quot;, bean1.getTitle())));
+        System.out.println(&quot;delete &quot; + dao.delete(new KeyPair(&quot;name&quot;, bean2.getTitle())));
+
+    }
+
+}
+</code></pre>
+
+<p>=======</p>
+<h1 id="mongodb-integration_1">MongoDB Integration</h1>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>7d3dcf7cc11ab570732c1469622f221c2cb3eaf0</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote></div>
+        <footer>
+    <div class="footer-buttons">
+        <div class="previous"><a href=".." title="Home"><span>Previous</span></a></div>
+        <div class="next"><a href="../postgres/" title="Postgres"><span>Next</span></a></div>
+    </div>
+  <div class="footer-note"><p>
+    Built with <a href="http://www.mkdocs.org">MkDocs</a> using
+    <a href="https://github.com/daizutabi/mkdocs-ivory">Ivory theme</a>.
+  </p></div>
+</footer>
+      </div>
+    </main>
+  </div>
+  <script src="../js/theme.js"></script>
+  <script src="../search/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Postgres &mdash; Brosoft DAO</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/tonsky/FiraCode@1.206/distr/fira_code.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body ontouchstart="">
+  <div id="container">
+    <aside>
+      <div class="home">
+        <div class="title">
+          <button class="hamburger"></button>
+          <a href=".." class="site-name"> Brosoft DAO</a>
+        </div>
+        <div class="search">
+          <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <ul class="root">
+          <li class="toctree-l1"><a class="nav-item" href="..">Welcome to Brosoft DAO</a></li>
+          <li class="toctree-l1"><a class="nav-item" href="../mongo/">MongoDB Integration</a><a class="nav-item" href="../mongo/">MongoDB Integration</a></li>
+          <li class="toctree-l1 current"><a class="nav-item current" href="./">PostgreSQL Integration</a><a class="nav-item current" href="./">PostgreSQL Integration</a>
+  <ul class="subnav">
+      <li class="toctree-l2"><a class="nav-item toc" href="#sql-connection-init-implementation">SQL Connection Init Implementation</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#making-a-dao-class">Making a DAO Class</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#using-the-dao">Using the DAO</a></li>
+  </ul></li>
+          <li class="toctree-l1"><a class="nav-item" href="../sqlite/">SQLite Integration</a><a class="nav-item" href="../sqlite/">SQLite Integration</a></li>
+        </ul>
+      </nav>
+      <div class="repo">
+    <div class="previous"><a href="../mongo/">&laquo; Previous</a></div>
+    <div class="next"><a href="../sqlite/">Next &raquo;</a></div>
+</div>
+    </aside>
+    <div id="spacer"><button class="arrow"></button></div>
+    <main>
+      <div class="home-top">
+        <button class="hamburger"></button>
+        <a href=".." class="site-name"> Brosoft DAO</a>
+      </div>
+      <div id="main">
+        <nav class="breadcrumbs">
+  <ul>
+  
+  </ul>
+</nav>
+        <div id="content"><p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<h1 id="postgresql-integration">PostgreSQL Integration</h1>
+<h2 id="sql-connection-init-implementation">SQL Connection Init Implementation</h2>
+<p>The first thing that is needed is to setup the connection to your <a href="https://www.postgresql.org/">PostgreSQL</a> server and your application. What you need to do is make a Java class that implements <code>io.brosoft.dao.SqlDbInit</code></p>
+<pre><code class="java">public class PostgresqlInit implements SqlDbInit {
+    @Override
+    public Connection initDatabase() {
+
+        Connection connection;
+        try {
+            String connectionUrl = &quot;jdbc:postgresql://localhost:5432/test&quot;;
+            Class.forName(&quot;org.postgresql.Driver&quot;);
+            Properties props = new Properties();
+            props.setProperty(&quot;user&quot;,&quot;postgres&quot;);
+            props.setProperty(&quot;password&quot;, &quot;&quot;);
+            connection = DriverManager.getConnection(connectionUrl,&quot;postgres&quot;,&quot;postgres&quot;);
+            Statement statement = connection.createStatement();
+            String createTableSql = &quot;CREATE TABLE IF NOT EXISTS sampleTable (&quot;
+                    + &quot;name TEXT PRIMARY KEY NOT NULL,&quot;
+                    + &quot;species TEXT NOT NULL,&quot;
+                    + &quot;occupation TEXT NOT NULL)&quot;;
+            statement.execute(createTableSql);
+            statement.close();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return connection;
+    }
+}
+</code></pre>
+
+<h2 id="marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</h2>
+<p>Next you should annotate your Java beans to be used by the DAO. If you do not supply a key for the field it will default to the Java field name.</p>
+<pre><code class="java">public class PostgresqlBean {
+
+    @SQLField
+    public String name;
+    @SQLField
+    public String species;
+    @SQLField
+    public String occupation;
+
+}
+</code></pre>
+
+<h2 id="making-a-dao-class">Making a DAO Class</h2>
+<p>This is extremely simple as all you need to do is simply annoatate both the MongoInit implementation, as well as the Java Bean that it is using. The DAO's param type will be the Type of the Java Bean</p>
+<pre><code class="java">@SQLTable(dbInitializer = PostgresqlInit.class, bean = PostgresqlBean.class, table = &quot;sampleTable&quot;)
+public class PostgresqlDaoExample extends SQLDao&lt;PostgresqlBean&gt; {
+}
+</code></pre>
+
+<h2 id="using-the-dao">Using the DAO</h2>
+<p>Usage of the DAO is straight forward and simple. Instantiate using the deafult constructor and perform CRUD operations.</p>
+<pre><code class="java">public class PostgresqlExample {
+
+    public static void main(String[] args) throws ExecutionException {
+
+        SQLDao&lt;PostgresqlBean&gt; dao = new PostgresqlDaoExample();
+
+        PostgresqlBean bean1 = new PostgresqlBean();
+        bean1.name = &quot;Fox McCloud&quot;;
+        bean1.species = &quot;Red Fox&quot;;
+        bean1.occupation = &quot;Star Fox Team Leader&quot;;
+
+        PostgresqlBean bean2 = new PostgresqlBean();
+        bean2.name = &quot;Falco Lombardi&quot;;
+        bean2.species = &quot;Avian&quot;;
+        bean2.occupation = &quot;Star Fox Team Ace Pilot&quot;;
+
+        System.out.println( &quot;create &quot; +  dao.create(bean1));
+        System.out.println( &quot;delete &quot; +  dao.delete(new KeyPair(&quot;name&quot;, bean1.name)));
+
+        System.out.println( &quot;create &quot; +  dao.create(bean1));
+        System.out.println( &quot;update &quot; +  dao.update(bean2, new KeyPair(&quot;name&quot;, bean1.name)));
+
+        for (PostgresqlBean bean : dao.readAll()) {
+            System.out.printf(&quot;name: %s, species: %s, occupation: %s\n&quot;, bean.name, bean.species, bean.occupation);
+        }
+
+        System.out.println( &quot;delete &quot; +  dao.delete(new KeyPair(&quot;name&quot;, bean1.name)));
+        System.out.println( &quot;delete &quot; +  dao.delete(new KeyPair(&quot;name&quot;, bean2.name)));
+
+    }
+}
+</code></pre>
+
+<p>=======</p>
+<h1 id="postgresql-integration_1">PostgreSQL Integration</h1>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>7d3dcf7cc11ab570732c1469622f221c2cb3eaf0</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote></div>
+        <footer>
+    <div class="footer-buttons">
+        <div class="previous"><a href="../mongo/" title="Mongo"><span>Previous</span></a></div>
+        <div class="next"><a href="../sqlite/" title="Sqlite"><span>Next</span></a></div>
+    </div>
+  <div class="footer-note"><p>
+    Built with <a href="http://www.mkdocs.org">MkDocs</a> using
+    <a href="https://github.com/daizutabi/mkdocs-ivory">Ivory theme</a>.
+  </p></div>
+</footer>
+      </div>
+    </main>
+  </div>
+  <script src="../js/theme.js"></script>
+  <script src="../search/main.js"></script>
+</body>
+</html>
