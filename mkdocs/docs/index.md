@@ -12,6 +12,7 @@ There are 3 requirements at minimum to use Brosoft DAO that are generally the sa
 * Implement the DB Connection Initializer
 * Annotate a Class to be the DAO for a Java Bean
 * Annotate the fields of the Java Bean for use in the DAO
+<<<<<<< HEAD
 
 ## Database-Specific Documentation
 
@@ -72,3 +73,5 @@ boolean update(T t, KeyPair... pairs) throws ExecutionException
  */
 boolean delete(KeyPair... pairs) throws ExecutionException
 ```
+=======
+>>>>>>> 7d3dcf7cc11ab570732c1469622f221c2cb3eaf0
