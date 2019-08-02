@@ -9,5 +9,11 @@ target
 .settings
 .idea
 
+# VS Code
+.vscode
+
 # Databases (SQLite)
 *.db
+
+# Jekell
+_site
