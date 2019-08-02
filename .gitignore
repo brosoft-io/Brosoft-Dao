@@ -1,0 +1,19 @@
+# deployment & build
+target
+
+# java
+.classpath
+
+# IDEs
+.project
+.settings
+.idea
+
+# VS Code
+.vscode
+
+# Databases (SQLite)
+*.db
+
+# Jekell
+_site
