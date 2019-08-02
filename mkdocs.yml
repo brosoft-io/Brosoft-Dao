@@ -1,7 +1,0 @@
-site_name: Brosoft DAO
-nav:
-    - Home: index.md
-    - Mongo: mongo.md
-    - Postgres: postgres.md
-    - Sqlite: sqlite.md
-theme: ivory
