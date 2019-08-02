@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -19,7 +21,8 @@ import org.bson.Document;
 
 public abstract class MongoDao<T> extends AbstractDao<T> {
 
-	protected static MongoDatabase db = null;
+	protected static Map<String,MongoDatabase> dbMap = new HashMap<String, MongoDatabase>();
+	protected MongoDatabase db;
 	protected String collection;
 	protected List<String> keyList;
 	
@@ -28,9 +31,11 @@ public abstract class MongoDao<T> extends AbstractDao<T> {
 		MongoCollection documentCollection = this.getClass().getAnnotation(MongoCollection.class);
 		this.collection = documentCollection.collection();
 		this.clazz = (Class<T>) documentCollection.bean();
+		this.db = dbMap.get(documentCollection.mongoInitializer().getCanonicalName());
 		if (db == null) {
 			try {
 				db = documentCollection.mongoInitializer().getDeclaredConstructor().newInstance().initDatabase();
+				dbMap.put(documentCollection.mongoInitializer().getCanonicalName(), db);
 			} catch (IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
 				throw new MissingDefaultConstructorException(e);
