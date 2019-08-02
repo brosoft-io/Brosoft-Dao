@@ -41,6 +41,10 @@
           <li class="toctree-l1"><a class="nav-item" href="../postgres/">PostgreSQL Integration</a></li>
           <li class="toctree-l1 current"><a class="nav-item current" href="./">SQLite Integration</a>
   <ul class="subnav">
+      <li class="toctree-l2"><a class="nav-item toc" href="#sql-connection-init-implementation">SQL Connection Init Implementation</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#making-a-dao-class">Making a DAO Class</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#using-the-dao">Using the DAO</a></li>
   </ul></li>
         </ul>
       </nav>
@@ -60,7 +64,88 @@
   
   </ul>
 </nav>
-        <div id="content"><h1 id="sqlite-integration">SQLite Integration</h1></div>
+        <div id="content"><h1 id="sqlite-integration">SQLite Integration</h1>
+<h2 id="sql-connection-init-implementation">SQL Connection Init Implementation</h2>
+<p>The first thing that is needed is to setup the connection to your <a href="https://sqlite.org/index.html">Sqlite</a> database and your application. What you need to do is make a Java class that implements <code>io.brosoft.dao.SqlDbInit</code></p>
+<pre><code class="java">public class SqliteInitExmple implements SqlDbInit {
+
+    @Override
+    public Connection initDatabase() {
+        Connection c = null;
+        Statement stmt = null;
+          try {
+             Class.forName(&quot;org.sqlite.JDBC&quot;);
+             c = DriverManager.getConnection(&quot;jdbc:sqlite:test.db&quot;);
+             System.out.println(&quot;Opened database successfully&quot;);
+             stmt = c.createStatement();
+             String sql = &quot;CREATE TABLE IF NOT EXISTS TESTTABLE &quot;
+                    + &quot;(first TEXT PRIMARY KEY NOT NULL,&quot;
+                    + &quot;last TEXT NOT NULL,&quot;
+                    + &quot;age INT NOT NULL)&quot;; 
+             stmt.executeUpdate(sql);
+             stmt.close();
+          } catch ( Exception e ) {
+             throw new RuntimeException(e);
+          }
+        return c;
+    }
+
+}
+</code></pre>
+
+<h2 id="marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</h2>
+<p>Next you should annotate your Java beans to be used by the DAO. If you do not supply a key for the field it will default to the Java field name.</p>
+<pre><code class="java">public class SqliteBeanExample {
+
+    @SQLField(name = &quot;first&quot;)
+    private String firstName;
+    @SQLField(name = &quot;last&quot;)
+    private String lastName;
+    @SQLField
+    private int age;
+
+}
+</code></pre>
+
+<h2 id="making-a-dao-class">Making a DAO Class</h2>
+<p>This is extremely simple as all you need to do is simply annoatate both the MongoInit implementation, as well as the Java Bean that it is using. The DAO's param type will be the Type of the Java Bean</p>
+<pre><code class="java">@SQLTable(table = &quot;TESTTABLE&quot;, bean = SqliteBeanExample.class, dbInitializer = SqliteInitExmple.class)
+public class SqliteDaoExample extends SQLDao&lt;SqliteBeanExample&gt; {
+
+}
+</code></pre>
+
+<h2 id="using-the-dao">Using the DAO</h2>
+<p>Usage of the DAO is straight forward and simple. Instantiate using the deafult constructor and perform CRUD operations.</p>
+<pre><code class="java">public class SqliteExample {
+
+    public static void main(String[] args) throws ExecutionException {
+
+        SQLDao&lt;SqliteBeanExample&gt; dao = new SqliteDaoExample();
+
+        SqliteBeanExample bean1 = new SqliteBeanExample();
+        bean1.setFirstName(&quot;john&quot;);
+        bean1.setLastName(&quot;snow&quot;);
+        bean1.setAge(22);
+
+        SqliteBeanExample bean2 = new SqliteBeanExample();
+        bean2.setFirstName(&quot;obi&quot;);
+        bean2.setLastName(&quot;wan&quot;);
+        bean2.setAge(57);
+
+        System.out.println(dao.create(bean1));
+        System.out.println(dao.delete(new KeyPair(&quot;first&quot;, bean1.getFirstName())));
+        System.out.println(dao.create(bean1));
+        System.out.println(dao.update(bean2, new KeyPair(&quot;first&quot;,  bean1.getFirstName())));
+        dao.readAll().forEach((bean) -&gt; {
+            System.out.println(String.format(&quot;F: %s L: %s A: %s&quot;, bean.getFirstName(), bean.getLastName(), bean.getAge()));
+        });
+        System.out.println(dao.delete(new KeyPair(&quot;first&quot;,  bean1.getFirstName())));
+        System.out.println(dao.delete(new KeyPair(&quot;first&quot;,  bean2.getFirstName())));
+    }
+
+}
+</code></pre></div>
         <footer>
     <div class="footer-buttons">
         <div class="previous"><a href="../postgres/" title="Postgres"><span>Previous</span></a></div>

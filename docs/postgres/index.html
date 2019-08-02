@@ -40,6 +40,10 @@
           <li class="toctree-l1"><a class="nav-item" href="../mongo/">MongoDB Integration</a></li>
           <li class="toctree-l1 current"><a class="nav-item current" href="./">PostgreSQL Integration</a>
   <ul class="subnav">
+      <li class="toctree-l2"><a class="nav-item toc" href="#sql-connection-init-implementation">SQL Connection Init Implementation</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#making-a-dao-class">Making a DAO Class</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#using-the-dao">Using the DAO</a></li>
   </ul></li>
           <li class="toctree-l1"><a class="nav-item" href="../sqlite/">SQLite Integration</a></li>
         </ul>
@@ -61,7 +65,91 @@
   
   </ul>
 </nav>
-        <div id="content"><h1 id="postgresql-integration">PostgreSQL Integration</h1></div>
+        <div id="content"><h1 id="postgresql-integration">PostgreSQL Integration</h1>
+<h2 id="sql-connection-init-implementation">SQL Connection Init Implementation</h2>
+<p>The first thing that is needed is to setup the connection to your <a href="https://www.postgresql.org/">PostgreSQL</a> server and your application. What you need to do is make a Java class that implements <code>io.brosoft.dao.SqlDbInit</code></p>
+<pre><code class="java">public class PostgresqlInit implements SqlDbInit {
+    @Override
+    public Connection initDatabase() {
+
+        Connection connection;
+        try {
+            String connectionUrl = &quot;jdbc:postgresql://localhost:5432/test&quot;;
+            Class.forName(&quot;org.postgresql.Driver&quot;);
+            Properties props = new Properties();
+            props.setProperty(&quot;user&quot;,&quot;postgres&quot;);
+            props.setProperty(&quot;password&quot;, &quot;&quot;);
+            connection = DriverManager.getConnection(connectionUrl,&quot;postgres&quot;,&quot;postgres&quot;);
+            Statement statement = connection.createStatement();
+            String createTableSql = &quot;CREATE TABLE IF NOT EXISTS sampleTable (&quot;
+                    + &quot;name TEXT PRIMARY KEY NOT NULL,&quot;
+                    + &quot;species TEXT NOT NULL,&quot;
+                    + &quot;occupation TEXT NOT NULL)&quot;;
+            statement.execute(createTableSql);
+            statement.close();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return connection;
+    }
+}
+</code></pre>
+
+<h2 id="marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</h2>
+<p>Next you should annotate your Java beans to be used by the DAO. If you do not supply a key for the field it will default to the Java field name.</p>
+<pre><code class="java">public class PostgresqlBean {
+
+    @SQLField
+    public String name;
+    @SQLField
+    public String species;
+    @SQLField
+    public String occupation;
+
+}
+</code></pre>
+
+<h2 id="making-a-dao-class">Making a DAO Class</h2>
+<p>This is extremely simple as all you need to do is simply annoatate both the MongoInit implementation, as well as the Java Bean that it is using. The DAO's param type will be the Type of the Java Bean</p>
+<pre><code class="java">@SQLTable(dbInitializer = PostgresqlInit.class, bean = PostgresqlBean.class, table = &quot;sampleTable&quot;)
+public class PostgresqlDaoExample extends SQLDao&lt;PostgresqlBean&gt; {
+}
+</code></pre>
+
+<h2 id="using-the-dao">Using the DAO</h2>
+<p>Usage of the DAO is straight forward and simple. Instantiate using the deafult constructor and perform CRUD operations.</p>
+<pre><code class="java">public class PostgresqlExample {
+
+    public static void main(String[] args) throws ExecutionException {
+
+        SQLDao&lt;PostgresqlBean&gt; dao = new PostgresqlDaoExample();
+
+        PostgresqlBean bean1 = new PostgresqlBean();
+        bean1.name = &quot;Fox McCloud&quot;;
+        bean1.species = &quot;Red Fox&quot;;
+        bean1.occupation = &quot;Star Fox Team Leader&quot;;
+
+        PostgresqlBean bean2 = new PostgresqlBean();
+        bean2.name = &quot;Falco Lombardi&quot;;
+        bean2.species = &quot;Avian&quot;;
+        bean2.occupation = &quot;Star Fox Team Ace Pilot&quot;;
+
+        System.out.println( &quot;create &quot; +  dao.create(bean1));
+        System.out.println( &quot;delete &quot; +  dao.delete(new KeyPair(&quot;name&quot;, bean1.name)));
+
+        System.out.println( &quot;create &quot; +  dao.create(bean1));
+        System.out.println( &quot;update &quot; +  dao.update(bean2, new KeyPair(&quot;name&quot;, bean1.name)));
+
+        for (PostgresqlBean bean : dao.readAll()) {
+            System.out.printf(&quot;name: %s, species: %s, occupation: %s\n&quot;, bean.name, bean.species, bean.occupation);
+        }
+
+        System.out.println( &quot;delete &quot; +  dao.delete(new KeyPair(&quot;name&quot;, bean1.name)));
+        System.out.println( &quot;delete &quot; +  dao.delete(new KeyPair(&quot;name&quot;, bean2.name)));
+
+    }
+}
+</code></pre></div>
         <footer>
     <div class="footer-buttons">
         <div class="previous"><a href="../mongo/" title="Mongo"><span>Previous</span></a></div>

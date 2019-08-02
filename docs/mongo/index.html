@@ -39,6 +39,10 @@
           <li class="toctree-l1"><a class="nav-item" href="..">Welcome to Brosoft DAO</a></li>
           <li class="toctree-l1 current"><a class="nav-item current" href="./">MongoDB Integration</a>
   <ul class="subnav">
+      <li class="toctree-l2"><a class="nav-item toc" href="#mongodatabase-init-implementation">MongoDatabase Init Implementation</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#making-a-dao-class">Making a DAO Class</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#using-the-dao">Using the DAO</a></li>
   </ul></li>
           <li class="toctree-l1"><a class="nav-item" href="../postgres/">PostgreSQL Integration</a></li>
           <li class="toctree-l1"><a class="nav-item" href="../sqlite/">SQLite Integration</a></li>
@@ -61,7 +65,74 @@
   
   </ul>
 </nav>
-        <div id="content"><h1 id="mongodb-integration">MongoDB Integration</h1></div>
+        <div id="content"><h1 id="mongodb-integration">MongoDB Integration</h1>
+<h2 id="mongodatabase-init-implementation">MongoDatabase Init Implementation</h2>
+<p>The first thing that is needed is to setup the connection to your <a href="https://www.mongodb.com/what-is-mongodb">MongoDB</a> server and your application. What you need to do is make a Java class that implements <code>io.brosoft.dao.MongoInit</code></p>
+<pre><code class="java">public class MongoInitExample implements MongoInit {
+
+    @Override
+    public MongoDatabase initDatabase() {
+        MongoClient client = new MongoClient(&quot;localhost&quot;, 27017);
+        return client.getDatabase(&quot;testDB&quot;);
+    }
+}
+</code></pre>
+
+<h2 id="marking-your-java-beans-for-dao-usage">Marking your Java Beans for DAO Usage</h2>
+<p>Next you should annotate your Java beans to be used by the DAO. If you do not supply a key for the field it will default to the Java field name.</p>
+<pre><code class="java">public class MongoBean {
+
+    @MongoField(key = &quot;name&quot;)
+    private String title;
+    @MongoField
+    private String genre;
+    @MongoField(key = &quot;release-year&quot;)
+    private int year;
+}
+</code></pre>
+
+<h2 id="making-a-dao-class">Making a DAO Class</h2>
+<p>This is extremely simple as all you need to do is simply annoatate both the MongoInit implementation, as well as the Java Bean that it is using. The DAO's param type will be the Type of the Java Bean</p>
+<pre><code class="java">@MongoCollection(bean = MongoBean.class, collection = &quot;testCollection&quot;, mongoInitializer = MongoInitExample.class)
+public class MongoDaoExample extends MongoDao&lt;MongoBean&gt; {
+}
+</code></pre>
+
+<h2 id="using-the-dao">Using the DAO</h2>
+<p>Usage of the DAO is straight forward and simple. Instantiate using the deafult constructor and perform CRUD operations.</p>
+<pre><code class="java">public class MongoExample {
+
+    public static void main(String[] args) throws ExecutionException {
+        MongoDaoExample dao = new MongoDaoExample();
+
+        MongoBean bean1 = new MongoBean();
+        bean1.setTitle(&quot;akira&quot;);
+        bean1.setGenre(&quot;drama/thriller&quot;);
+        bean1.setYear(1988);
+
+        MongoBean bean2 = new MongoBean();
+        bean2.setTitle(&quot;serial experiments lain&quot;);
+        bean2.setGenre(&quot;sci-fi&quot;);
+        bean2.setYear(1995);
+
+        System.out.println(&quot;create &quot; + dao.create(bean1));
+        System.out.println(&quot;delete &quot; + dao.delete(new KeyPair(&quot;name&quot;, bean1.getTitle())));
+
+        System.out.println(&quot;create &quot; + dao.create(bean1));
+        System.out.println(&quot;update &quot; + dao.update(bean2, new KeyPair(&quot;name&quot;, bean1.getTitle())));
+
+        List&lt;MongoBean&gt; beans = dao.readAll();
+        for (MongoBean bean : beans) {
+            System.out.println(String.format(&quot;name: %s, genre: %s, date: %s&quot;, bean.getTitle(), bean.getGenre(), bean.getYear()));
+        }
+
+        System.out.println(&quot;delete &quot; + dao.delete(new KeyPair(&quot;name&quot;, bean1.getTitle())));
+        System.out.println(&quot;delete &quot; + dao.delete(new KeyPair(&quot;name&quot;, bean2.getTitle())));
+
+    }
+
+}
+</code></pre></div>
         <footer>
     <div class="footer-buttons">
         <div class="previous"><a href=".." title="Home"><span>Previous</span></a></div>

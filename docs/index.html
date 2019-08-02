@@ -41,6 +41,8 @@
   <ul class="subnav">
       <li class="toctree-l2"><a class="nav-item toc" href="#what-is-brosoft-dao">What is Brosoft DAO</a></li>
       <li class="toctree-l2"><a class="nav-item toc" href="#how-does-it-work">How Does it Work</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#database-specific-documentation">Database-Specific Documentation</a></li>
+      <li class="toctree-l2"><a class="nav-item toc" href="#dao-methods">DAO methods</a></li>
   </ul></li>
           <li class="toctree-l1"><a class="nav-item" href="mongo/">MongoDB Integration</a></li>
           <li class="toctree-l1"><a class="nav-item" href="postgres/">PostgreSQL Integration</a></li>
@@ -73,7 +75,64 @@ without the hassle of having to write all the DAO classes to translate between J
 <li>Implement the DB Connection Initializer</li>
 <li>Annotate a Class to be the DAO for a Java Bean</li>
 <li>Annotate the fields of the Java Bean for use in the DAO</li>
-</ul></div>
+</ul>
+<h2 id="database-specific-documentation">Database-Specific Documentation</h2>
+<ul>
+<li>
+<h4 id="mongo"><a href="mongo">Mongo</a></h4>
+</li>
+<li>
+<h4 id="postgresql"><a href="postgres">PostgreSQL</a></h4>
+</li>
+<li>
+<h4 id="sqlite"><a href="sqlite">SQLite</a></h4>
+</li>
+</ul>
+<h2 id="dao-methods">DAO methods</h2>
+<pre><code class="java">/**
+ * Creates a new Record in the Database
+ * @param t
+ * @return
+ * @throws ExecutionException
+ */
+boolean create(T t) throws ExecutionException
+</code></pre>
+
+<pre><code class="java">/**
+ * Reads all records that match the given set of key pairs
+ * @param pairs
+ * @return
+ * @throws ExecutionException
+ */
+List&lt;T&gt; read(KeyPair... pairs) throws ExecutionException
+</code></pre>
+
+<pre><code class="java">/**
+ * Reads all records
+ * @return
+ * @throws ExecutionException
+ */
+List&lt;T&gt; readAll() throws ExecutionException
+</code></pre>
+
+<pre><code class="java">/**
+ * Replaces record matching key pairs with new record
+ * @param t
+ * @param pairs
+ * @return
+ * @throws ExecutionException
+ */
+boolean update(T t, KeyPair... pairs) throws ExecutionException
+</code></pre>
+
+<pre><code class="java">/**
+ * Deletes all records that match the given key pairs
+ * @param pairs
+ * @return
+ * @throws ExecutionException
+ */
+boolean delete(KeyPair... pairs) throws ExecutionException
+</code></pre></div>
         <footer>
     <div class="footer-buttons">
         <div class="next"><a href="mongo/" title="Mongo"><span>Next</span></a></div>
